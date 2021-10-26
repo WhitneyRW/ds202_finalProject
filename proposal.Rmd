@@ -1,0 +1,21 @@
+---
+title: "proposal"
+author: "Whitney Willoz"
+date: "10/26/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Final Project proposal
+
+Whitney Willoz
+
+Link to Data:
+
+Description:
+
+Analysis Questions hoping to Answer:
+
