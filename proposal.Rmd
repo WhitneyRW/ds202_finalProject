@@ -13,9 +13,19 @@ knitr::opts_chunk$set(echo = TRUE)
 
 Whitney Willoz
 
-Link to Data:
 
-Description:
+Link to Data:
+https://catalog.data.gov/dataset/energy-usage-analysis-system
+
+Description:(From the website)
+"The Energy Usage Analysis System application is a web based system which serves Energy Center of Expertise, under the Office of Facilitates Management and Service Programs. EUAS is used for tracking energy details for various energy sources namely electricity, natural gas, oil, chilled water, steam and renewable energy."
+
+This data can help America see where most of its energy is coming from and how
+to change this for the future.
 
 Analysis Questions hoping to Answer:
+How accurate is this system?
+How much energy does America use from renewable resources?
+Has America improved over the year of 2019 of decreasing usage of non-renewable resources?
+Where are we sourcing our energy from?
 
