@@ -1,0 +1,107 @@
+---
+title: "Final Project Report"
+author: "Whitney Willoz"
+date: "11/29/2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+#Energy Usage Analysis system Report
+
+## By: Whitney Willoz
+
+###Background:
+This data set is on an Energy Usage Analysis System. This system tracked governmental building in various regions of the US. I picked this data set because I thought it was tracking energy usage all throughout the US but it is not. This data set really pushed me to use all of my skills from this past semester including cleaning and deciding what data to use.
+
+###How I obtained/cleaned:
+I downloaded the data off of the government data website. There were 15 different excel sheets lots of which I was unable to use because the variables were unspecified and I had no idea what the data was about. I only used 3 of those 15 sheets. Then I took out any columns of the data I couldn't use or didn't know what it was.
+
+```{r}
+library(tidyverse)
+library(lubridate)
+library(maps)
+
+
+energy <- readxl::read_xls("energy.xls")
+facilityB<- readxl::read_xls("facilityBuild.xls")
+
+
+#cleaning data
+energy <- energy %>% select("BLDGNUM","FYR","FMONTH", "KWHRAMT", "KWDMDAMT","STEAMAMT", "GASAMT", "OILAMT", "COALAMT",
+                            "KWHRCOST", "KWDMDCOST", "STEAMCOST", "GASCOST", "OILCOST", "COALCOST") %>% 
+  mutate(across(FYR:COALCOST, as.numeric))
+  
+facilityB <- facilityB %>% select("BLDGNUM", "REGNNUM", "GROSSSQFT") %>% mutate(across(REGNNUM:GROSSSQFT, as.numeric))
+
+```
+
+###Analysis:
+I was using 1 sheet just to identify which states where in which regions. The only regions with data to display ended up being 3,7,8,11. 11 and 3 had overlapping states and 7 and 8 did not with any of the other regions. I was able to identify that steam and Coal were energy sources that were on the energy sheet but never had any amounts. So the only two sources of energy used were Gas and Oil. Then I answered the questions that follow.
+
+```{r}
+
+JoinDat <- energy %>% left_join(facilityB, by = "BLDGNUM") %>% mutate(REGNNUM= as.factor(REGNNUM))
+
+qftRegion <- JoinDat %>% group_by(REGNNUM) %>% 
+  summarize(totalQft = sum(GROSSSQFT)) %>% 
+  filter(!is.na(totalQft)) %>% 
+  arrange(-totalQft)
+
+qftRegion
+```
+
+
+###Answers to questions raised:
+####Question 1: What region uses the most energy over the years?
+Answer: Region 11 uses the most. Which was unsuprising because they had the largest buildings to power.
+
+```{r}
+mEnergy <- JoinDat %>% group_by(REGNNUM,FYR) %>% 
+  summarize(totalKWH = sum(KWHRAMT)) %>% 
+  filter(!is.na(REGNNUM) & !(REGNNUM == 5))
+
+  ggplot(mEnergy, aes(x=FYR, weight=totalKWH, fill=FYR)) + geom_bar() + facet_wrap(~REGNNUM) + 
+    ylab("Kilowatt Hours") + xlab("Year")
+```
+
+####Question 2: What region used gas most in total?
+Answer: Region 8 used the most gas energy over the other regions. This must be the most available type of energy to them. 
+
+```{r}
+  mGasEnergy <- JoinDat %>% group_by(REGNNUM,FYR) %>% 
+    summarize(totalGas = sum(GASAMT)) %>% 
+    filter((!is.na(REGNNUM)) & !(REGNNUM == 5) & (!is.na(totalGas)))
+  
+  ggplot(mGasEnergy, aes(x=REGNNUM, weight=totalGas, fill=REGNNUM)) + geom_bar() + 
+    ylab("GAS gallon total") + xlab("Region")
+```
+
+####Question 3: What region used oil most in total?
+Answer: Region 11 used the most oil energy. This could be because of the size or just that it was more available to this region.
+
+```{r}
+mOilEnergy <- JoinDat %>% group_by(REGNNUM,FYR) %>%      
+    summarize(totalOil = sum(OILAMT)) %>% 
+    filter(!is.na(REGNNUM) & !is.na(totalOil) & !(REGNNUM == 5))
+  
+    ggplot(mOilEnergy, aes(x=REGNNUM, weight=totalOil, fill = REGNNUM)) + geom_bar() +
+        ylab("Oil gallon total") + xlab("Region")
+```
+    
+####Question 4: What region spent the most money over the years?
+Answer: Obviously region 11 would take this one as well since they were using the most energy overall. 
+
+```{r}
+mCostEnergy <- JoinDat %>% group_by(REGNNUM,FYR) %>% 
+    summarize(totalMoney = sum(KWHRCOST)) %>% 
+    filter(!is.na(REGNNUM) & !(REGNNUM == 5))
+  
+  ggplot(mCostEnergy, aes(x=FYR, y=totalMoney)) + geom_line() + facet_wrap(~REGNNUM) + 
+    ylab("Money Spent on Kilowatt Hours") + xlab("Year")
+```
+
+###Conclusion:
+Overall region 11 in the middle northeast must just have more facilities there with a need for high energy use. Region 8 surprised me with the highest gas usage of all the 4 Regions. The governmental facilities are higher in number or larger in Region 11 which causes the higher energy use overall and for them to spend more money.
